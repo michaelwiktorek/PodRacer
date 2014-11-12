@@ -49,12 +49,14 @@ else
 	SHLIBS += -lpng
 endif
 
-SYSSRCS = 							\
+SYSSRCS = \
 	$(WRAPPER)
 
-SRCS =								\
-	stdafx.cpp						\
-	Main.cpp
+SRCS = \
+	stdafx.cpp \
+	Main.cpp \
+	PodGameManager.cpp \
+	PodRacer.cpp 
 
 SYSOBJS = $(patsubst %.cpp,%.o,$(SYSSRCS))
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
