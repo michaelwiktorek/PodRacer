@@ -2,6 +2,24 @@
 
 #include "stdafx.h"
 
+class PodEngine : public PhysicsActor
+{
+public:
+	typedef PhysicsActor super;
+	PodEngine(float x, float y);
+	virtual void Update(float dt);
+	virtual void Thrust(float amount);
+	virtual float GetMaxThrust();
+};
+
+class Pod : public PhysicsActor
+{
+public:
+	typedef PhysicsActor super;
+	Pod(float x, float y);
+	virtual void Update(float dt);
+};
+
 class PodRacer : public Actor
 {
 public:
@@ -10,9 +28,9 @@ public:
 	virtual void Render();
 	virtual void Update(float dt);
 
-	PhysicsActor *leftEngine;
-	PhysicsActor *rightEngine;
-	PhysicsActor *pod;
+	PodEngine *leftEngine;
+	PodEngine *rightEngine;
+	Pod *pod;
 
 protected:
 };
