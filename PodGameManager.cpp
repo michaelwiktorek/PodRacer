@@ -10,7 +10,11 @@ PodGameManager::PodGameManager()
 	theSwitchboard.SubscribeTo(this, "MoveForwards");
 	theSwitchboard.SubscribeTo(this, "MoveBackwards");
 
-	theWorld.SetSideBlockers(true, 0.7f);
+	theWorld.SetupPhysics(Vector2(0, 0),
+	                      Vector2(5000, 5000),
+	                      Vector2(-5000, -5000));
+
+	// theWorld.SetSideBlockers(true, 0.7f);
 	theWorld.Add(new GridActor(
 	                 Color(0.8, 0.8, 1.0),
 	                 Color(1.0, 0, 0),
@@ -23,7 +27,7 @@ PodGameManager::PodGameManager()
 	theWorld.Add(podRacer);
 
 	theCamera.SetPosition(0, 0, 40);
-	// theCamera.LockTo(podRacer->pod);
+	theCamera.LockTo(podRacer->pod);
 }
 
 /** The only instance of this class. */

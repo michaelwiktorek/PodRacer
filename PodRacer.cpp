@@ -1,20 +1,42 @@
 #include "PodRacer.h"
+#include "Aerodynamics.h"
+#include <math.h>
+
+/**
+ * Convert a local point to a world point for an actor.
+ * @param  a The actor
+ * @param  x Local X coordinate
+ * @param  y Local Y coordinate
+ * @return World Coordinate
+ */
+Vector2 LocalToWorld(Actor *a, float x, float y)
+{
+	float angle = MathUtil::ToRadians(a->GetRotation());
+	float c = cos(angle);
+	float s = sin(angle);
+	return Vector2(c * x - s * y, c * y + s * x) + a->GetPosition();;
+}
 
 /**
  * Draw a line with openGL
- * @param ax [description]
- * @param ay [description]
- * @param bx [description]
- * @param by [description]
+ * @param ax start x
+ * @param ay start y
+ * @param bx end x
+ * @param by end y
  */
 void drawLine(float ax, float ay, float bx, float by, Color color, float width)
 {
 	glLineWidth(width);
-	glColor3f(color.R, color.G, color.B);
+	glColor4f(color.R, color.G, color.B, color.A);
 	glBegin(GL_LINES);
 	glVertex3f(ax, ay, 0.0);
 	glVertex3f(bx, by, 0);
 	glEnd();
+}
+
+void drawLine(Vector2 a, Vector2 b, Color color, float width)
+{
+	drawLine(a.X, a.Y, b.X, b.Y, color, width);
 }
 
 /**
@@ -39,16 +61,66 @@ void bindPod(b2RopeJointDef &jointDef, float ax, float ay, float bx, float by)
 }
 
 /**
- * Apply air friction to a physics actor.
- * @param a      the actor
- * @param amount the amount of friction to apply. 1.0 is normal.
+ * Create a new engine at (x, y).
  */
-void applyAirFriction(PhysicsActor *a, float amount)
+PodEngine::PodEngine(float x, float y)
 {
-	b2Vec2 force = a->GetBody()->GetLinearVelocity();
-	force *= -amount;
-	a->GetBody()->ApplyForceToCenter(force);
+	super();
+	SetSize(1.0, 5.0);
+	SetColor(0.3, 0.3f, 0.3);
+	SetPosition(x, y);
+	SetRestitution(0.1);
+	SetFriction(0.2);
+	InitPhysics();
+
+	throttle = 0;
+	exhaust = new ParticleActor();
+	exhaust->SetColor(1.0, 0.2, 0, 0.8);
+	exhaust->SetEndColor(Color(1.0f, 1.0f, 0, 0));
+	exhaust->SetDrawShape(ADS_Circle);
+	exhaust->SetSize(Vector2(0.3, 0.3));
+	exhaust->SetEndScale(0.5);
+	exhaust->SetMaxParticles(1800);
+	exhaust->SetParticlesPerSecond(0.0f);
+	exhaust->SetParticleLifetime(0.15f);
+	exhaust->SetGravity(Vector2::Zero);
+	exhaust->SetSpeedRange(0, 2);
+	exhaust->SetSpread(MathUtil::Pi);
+	theWorld.Add(exhaust); // TODO: Add at a different time that construction
 }
+
+/**
+ * @return The maximum amount of thrust this engine can produce in its current state.
+ */
+float PodEngine::GetMaxThrust()
+{
+	float result = theTuning.GetFloat("EnginePower");
+	result += GetBody()->GetLinearVelocity().Length() * 0.0005 * result;
+	return result;
+}
+
+/**
+ * Updates the engine.
+ */
+void PodEngine::Update(float dt)
+{
+	exhaust->SetPosition(LocalToWorld(this, 0, -2.5));
+
+	float size = throttle * 0.4 + 0.2;
+	exhaust->SetSize(Vector2(size, size));
+	exhaust->SetParticlesPerSecond(60.0f * throttle + 60);
+	exhaust->SetSpeedRange(0, 5 * throttle + 2);
+
+	// Physics
+	applyAerodynamics(this, theTuning.GetFloat("EngineDrag"));
+	if (throttle > 0.01)
+	{
+		Vector2 thrust = Vector2(0, throttle * GetMaxThrust());
+		Vector2 point = Vector2(0, 0);
+		ApplyLocalForce(thrust, point);
+	}
+}
+
 
 /**
  * Create a new pod at (x, y).
@@ -65,57 +137,13 @@ Pod::Pod(float x, float y)
 }
 
 /**
- * Create a new engine at (x, y).
- */
-PodEngine::PodEngine(float x, float y)
-{
-	super();
-	SetSize(1.0f, 5.0f);
-	SetColor(0.3f, 0.3f, 0.3f);
-	SetPosition(x, y);
-	SetRestitution(0.1f);
-	SetFriction(0.2f);
-	InitPhysics();
-
-	// TODO: create particle effect.
-}
-
-/**
- * Updates the engine.
- */
-void PodEngine::Update(float dt)
-{
-	applyAirFriction(this, theTuning.GetFloat("EngineAirFriction"));
-}
-
-/**
- * [PodEngine::Thrust description]
- * @param amount [description]
- */
-void PodEngine::Thrust(float amount)
-{
-	Vector2 thrust = Vector2(0, amount * GetMaxThrust());
-	Vector2 point = Vector2(0, 0);
-	ApplyLocalForce(thrust, point);
-}
-
-/**
- * @return The maximum amount of thrust this engine can produce in its current state.
- */
-float PodEngine::GetMaxThrust()
-{
-	float result = theTuning.GetFloat("EnginePower");
-	result += GetBody()->GetLinearVelocity().Length() * 0.01 * result;
-	return result;
-}
-
-/**
  * Update the pod.
  */
 void Pod::Update(float dt)
 {
-	applyAirFriction(this, theTuning.GetFloat("PodAirFriction"));
+	applyAerodynamics(this, theTuning.GetFloat("PodDrag"));
 }
+
 
 /**
  * Create a new pod racer.
@@ -123,6 +151,7 @@ void Pod::Update(float dt)
 PodRacer::PodRacer()
 {
 	super();
+	t = 0;
 
 	leftEngine = new PodEngine(-2, 5);
 	rightEngine = new PodEngine(2, 5);
@@ -157,35 +186,34 @@ PodRacer::PodRacer()
 	theWorld.Add(pod);
 }
 
+/**
+ * Draw the binding between the engines and the ropes from the pod to the engines.
+ */
 void PodRacer::Render()
 {
-	Vector2 leftPos = leftEngine->GetPosition();
-	Vector2 rightPos = rightEngine->GetPosition();
-	Vector2 podPos = pod->GetPosition();
-
-	drawLine(leftPos.X, leftPos.Y, rightPos.X, rightPos.Y, Color(1, 0, 1), 2.2);
+	Color beamColor = Color(0.8, 0, 1, (sin(t * 40) + 4) / 8);
+	drawLine(LocalToWorld(leftEngine, 0.5, 1), LocalToWorld(rightEngine, -0.5, 1), beamColor, 2.2);
+	Color ropeColor = Color(0.1, 0.1, 0.1);
+	drawLine(LocalToWorld(leftEngine, 0, -2), LocalToWorld(pod, -0.75, 1.5), ropeColor, 1.0);
+	drawLine(LocalToWorld(rightEngine, 0, -2), LocalToWorld(pod, 0.75, 1.5), ropeColor, 1.0);
 }
 
+/**
+ * Apply the player input to the pod.
+ */
 void PodRacer::Update(float dt)
 {
+	t += dt;
 	if (!theController.IsConnected())
 	{
 		return;
 	}
 
-	// float leftTrigger = theController.GetLeftTrigger() / 255.0;
-	// float rightTrigger = theController.GetRightTrigger() / 255.0;
-	float leftTrigger = theController.GetLeftThumbstick().Y / 255.0;
-	float rightTrigger = theController.GetRightThumbstick().Y / 255.0;
+	// float leftTrigger = theController.GetLeftTrigger() / 32768.0;
+	// float rightTrigger = theController.GetRightTrigger() / 32768.0;
+	float leftThrottle = theController.GetLeftThumbVec2().Y;
+	float rightThrottle = theController.GetRightThumbVec2().Y;
 
-	if (leftTrigger > 0.01)
-	{
-		leftEngine->Thrust(leftTrigger);
-	}
-
-	if (rightTrigger > 0.01)
-	{
-		rightEngine->Thrust(rightTrigger);
-	}
-
+	leftEngine->throttle = leftThrottle;
+	rightEngine->throttle = rightThrottle;
 }
