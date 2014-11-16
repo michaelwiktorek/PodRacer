@@ -17,13 +17,6 @@ void applyAerodynamics(PhysicsActor *actor, float amount)
 		{
 		case b2Shape::e_polygon:
 		{
-			// for each face
-			//   d = dot product of wind with face normal
-			//   if d is positive apply force
-			//     magnitude = d * length of face
-			//     direction = opposite of normal
-			//     position = midpoint of face
-			//
 			b2PolygonShape *poly = (b2PolygonShape *) shape;
 			int vertexCount = poly->GetVertexCount();
 			for (int i = 0; i < vertexCount; i++)
@@ -50,7 +43,7 @@ void applyAerodynamics(PhysicsActor *actor, float amount)
 				// lift
 				float liftMagnitude = airDotEdge * airDotEdgeNormal * edgeLength * airSpeed * amount * LIFT;
 				b2Vec2 lift = liftMagnitude * b2Cross(1, airVelocity);
-				body->ApplyForce(drag, midpoint);;
+				body->ApplyForce(lift, midpoint);;
 			}
 
 			break;
