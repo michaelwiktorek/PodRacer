@@ -1,5 +1,5 @@
-ANGEL_DISABLE_FMOD := $(shell sed -rn 's/^[[:space:]]*\#define[[:space:]]+ANGEL_DISABLE_FMOD[[:space:]]+([[:digit:]])[[:space:]]*$$/\1/p' ../Angel/AngelConfig.h)
-ANGEL_DISABLE_DEVIL := $(shell sed -rn 's/^[[:space:]]*\#define[[:space:]]+ANGEL_DISABLE_DEVIL[[:space:]]+([[:digit:]])[[:space:]]*$$/\1/p' ../Angel/AngelConfig.h)
+ANGEL_DISABLE_FMOD := $(shell sed -rn 's/^[[:space:]]*\#define[[:space:]]+ANGEL_DISABLE_FMOD[[:space:]]+([[:digit:]])[[:space:]]*$$/\1/p' ./lib/Angel/AngelConfig.h)
+ANGEL_DISABLE_DEVIL := $(shell sed -rn 's/^[[:space:]]*\#define[[:space:]]+ANGEL_DISABLE_DEVIL[[:space:]]+([[:digit:]])[[:space:]]*$$/\1/p' ./lib/Angel/AngelConfig.h)
 CXX = g++
 TARGET = ClientGame
 ANGEL_FLAGS = -D ANGEL_RELEASE
@@ -7,34 +7,34 @@ ARCH := $(shell uname -m)
 ALLEGRO_LIBS := $(shell allegro-config --libs 2>/dev/null)
 CWD := $(shell pwd)
 CODE_DIR := $(shell dirname "$(CWD)")
-LIBANGEL = ../Angel/libangel.a
-LUA = ../Angel/Libraries/angel-lua-build/lua
-WRAPPER = ../Angel/Scripting/Interfaces/AngelLuaWrapping.cpp
+LIBANGEL = ./lib/Angel/libangel.a
+LUA = ./lib/Angel/Libraries/angel-lua-build/lua
+WRAPPER = ./lib/Angel/Scripting/Interfaces/AngelLuaWrapping.cpp
 
-INCLUDE = 							\
-	-I../Angel						\
-	-I../Angel/Libraries/glfw-3.0.3/include			\
-	-I../Angel/Libraries/Box2D-2.2.1			\
-	-I../Angel/Libraries/FTGL/include			\
-	-I../Angel/Libraries/lua-5.2.1/src			\
-	-I/usr/include/freetype2
+INCLUDE = \
+	-I./lib/Angel \
+	-I./lib/Angel/Libraries/glfw-3.0.3/include \
+	-I./lib/Angel/Libraries/Box2D-2.2.1 \
+	-I./lib/Angel/Libraries/FTGL/include \
+	-I./lib/Angel/Libraries/lua-5.2.1/src \
+	/usr/include/freetype2
 ifneq ($(ANGEL_DISABLE_FMOD), 1)
-	INCLUDE += -I../Angel/Libraries/FMOD/inc
+	INCLUDE += -I./lib/Angel/Libraries/FMOD/inc
 endif
 
-LIBS = 									\
-	$(LIBANGEL)							\
-	../Angel/Libraries/glfw-3.0.3/src/libglfw3.a			\
-	../Angel/Libraries/Box2D-2.2.1/Build/Box2D/libBox2D.a		\
-	../Angel/Libraries/FTGL/unix/src/.libs/libftgl.a		\
-	../Angel/Libraries/gwen/lib/linux/gmake/libgwen_static.a	\
-	../Angel/Libraries/angel-lua-build/liblua.a
+LIBS = \
+	$(LIBANGEL) \
+	./lib/Angel/Libraries/glfw-3.0.3/src/libglfw3.a \
+	./lib/Angel/Libraries/Box2D-2.2.1/Build/Box2D/libBox2D.a \
+	./lib/Angel/Libraries/FTGL/unix/src/.libs/libftgl.a \
+	./lib/Angel/Libraries/gwen/lib/linux/gmake/libgwen_static.a \
+	./lib/Angel/Libraries/angel-lua-build/liblua.a
 
 ifneq ($(ANGEL_DISABLE_FMOD), 1)
 	ifeq ($(ARCH),x86_64)
-		LIBS += ../Angel/Libraries/FMOD/lib/libfmodex64.so
+		LIBS += ./lib/Angel/Libraries/FMOD/lib/libfmodex64.so
 	else
-		LIBS += ../Angel/Libraries/FMOD/lib/libfmodex.so
+		LIBS += ./lib/Angel/Libraries/FMOD/lib/libfmodex.so
 	endif
 endif
 
@@ -71,19 +71,19 @@ OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 all: $(TARGET)
 
 publish: $(TARGET)
-	$(LUA) ../Tools/BuildScripts/publish_linux.lua -i $(CWD) -e ClientGame
+	$(LUA) ./Tools/BuildScripts/publish_linux.lua -i $(CWD) -e ClientGame
 
 SWIG-Wrapper:
-	$(LUA) ../Tools/BuildScripts/swig_wrap.lua -p "$(CODE_DIR)"
+	$(LUA) ./Tools/BuildScripts/swig_wrap.lua -p "$(CODE_DIR)"
 
 $(WRAPPER): SWIG-Wrapper
 
 $(TARGET): $(LIBANGEL) $(OBJS) $(SYSOBJS) $(WRAPPER)
 	$(CXX) -o $@ $(OBJS) $(SYSOBJS) $(LIBS) $(SHLIBS) $(ANGEL_FLAGS)
-	cp -p ../Angel/Scripting/EngineScripts/*.lua Resources/Scripts
+	cp -p ./lib/Angel/Scripting/EngineScripts/*.lua Resources/Scripts
 
 clean:
 	rm -f $(OBJS) $(SYSOBJS) $(TARGET) $(WRAPPER)
 
 $(LIBANGEL):
-	cd ../Angel && make
+	cd ./lib/Angel && make
