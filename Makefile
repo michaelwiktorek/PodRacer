@@ -52,11 +52,13 @@ endif
 SYSSRCS = \
 	$(WRAPPER)
 
+# LIST OUR SOURCES HERE
 SRCS = \
 	stdafx.cpp \
 	Main.cpp \
 	PodGameManager.cpp \
-	PodRacer.cpp 
+	PodRacer.cpp \
+	Aerodynamics.cpp 
 
 SYSOBJS = $(patsubst %.cpp,%.o,$(SYSSRCS))
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))

@@ -3,7 +3,7 @@
 -- Strength of the springs holding the engines together
 PodSpringStrength = {
 	type = "float",
-	value = 2.5
+	value = 2.2
 }
 -- Damping of the springs holding the engines together
 PodSpringDamping = {
@@ -14,17 +14,35 @@ PodSpringDamping = {
 -- Damping of the springs holding the engines together
 EnginePower = {
 	type = "float",
-	value = 2.5
+	value = 500
+}
+
+-- Constant for amount of drag applied to things
+Drag = {
+	type = "float",
+	value = 1.1
+}
+
+-- Constant for amount of lift applied to things
+Lift = {
+	type = "float",
+	value = 0.5
 }
 
 -- Air friction applied to the pod engines
-EngineAirFriction = {
+EngineDrag = {
 	type = "float",
-	value = 1.8
+	value = 0.9
+}
+
+-- Air friction applied to the pod engines
+FlapDrag = {
+	type = "float",
+	value = 3.5
 }
 
 -- Air friction applied to the pod
-PodAirFriction = {
+PodDrag = {
 	type = "float",
-	value = 3.0
+	value = 1.5
 }
