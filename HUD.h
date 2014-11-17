@@ -1,7 +1,8 @@
 #pragma once
 
 #include "stdafx.h"
-
+#define SCALE_FACTOR 400
+#define Y_DIST theCamera.GetWindowHeight() + 50
 class HUD : public HUDActor 
 {
 public:
@@ -11,8 +12,10 @@ public:
 	virtual void Render();
 	void SetEngines(float left, float right);
 
-	Actor *leftEngineBar;
-	Actor *rightEngineBar;
+	// TextActor *leftText;
+	// TextActor *rightText;
+	HUDActor *leftEngineBar;
+	HUDActor *rightEngineBar;
 	float leftPower;
 	float rightPower;
 };

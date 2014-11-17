@@ -1,9 +1,6 @@
 #include "HUD.h"
 #include <iostream>
 
-#define Y_DIST 950
-#define SCALE_FACTOR 500
-
 HUD::HUD()
 {
 	//super();
@@ -21,8 +18,19 @@ HUD::HUD()
 	rightEngineBar->SetSize(50.0f, rightPower*SCALE_FACTOR);
 	rightEngineBar->SetPosition(250, Y_DIST);
 
+	// leftText = new TextActor();
+	// rightText = new TextActor();
+
+	// leftText->SetPosition(100, Y_DIST+SCALE_FACTOR);
+	// rightText->SetPosition(250, Y_DIST+SCALE_FACTOR);
+
+	// leftText->SetDisplayString("hello");
+	// rightText->SetDisplayString("hello2");
+
 	theWorld.Add(leftEngineBar);
 	theWorld.Add(rightEngineBar);
+	// theWorld.Add(leftText);
+	// theWorld.Add(rightText);
 }
 
 void HUD::Update(float dt)
