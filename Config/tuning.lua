@@ -17,10 +17,28 @@ EnginePower = {
 	value = 500
 }
 
+-- Constant for amount of drag applied to things
+Drag = {
+	type = "float",
+	value = 1.1
+}
+
+-- Constant for amount of lift applied to things
+Lift = {
+	type = "float",
+	value = 0.5
+}
+
 -- Air friction applied to the pod engines
 EngineDrag = {
 	type = "float",
 	value = 0.9
+}
+
+-- Air friction applied to the pod engines
+FlapDrag = {
+	type = "float",
+	value = 3.5
 }
 
 -- Air friction applied to the pod

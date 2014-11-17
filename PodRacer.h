@@ -8,10 +8,16 @@ public:
 	typedef PhysicsActor super;
 	PodEngine(float x, float y);
 	virtual void Update(float dt);
+	virtual void Render();
+	virtual void SetLeftFlap(float x);
+	virtual void SetRightFlap(float x);
 	virtual float GetMaxThrust();
 
 	ParticleActor *exhaust;
 	float throttle;
+
+	float leftFlap;
+	float rightFlap;
 };
 
 class Pod : public PhysicsActor

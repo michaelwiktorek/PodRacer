@@ -19,8 +19,8 @@ PodGameManager::PodGameManager()
 	                 Color(0.8, 0.8, 1.0),
 	                 Color(1.0, 0, 0),
 	                 1.0,
-	                 Vector2(-100, -100),
-	                 Vector2(100, 100)
+	                 Vector2(-5000, -5000),
+	                 Vector2(5000, 5000)
 	             ), -1);
 
 	PodRacer *podRacer = new PodRacer();
