@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "HUD.h"
 
 class PodEngine : public PhysicsActor
 {
@@ -35,10 +36,12 @@ public:
 	PodRacer();
 	virtual void Render();
 	virtual void Update(float dt);
+	void UpdateHUD();
 
 	PodEngine *leftEngine;
 	PodEngine *rightEngine;
 	Pod *pod;
+	HUD *hud;
 
 	float t;
 };

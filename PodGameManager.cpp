@@ -18,7 +18,7 @@ PodGameManager::PodGameManager()
 	theWorld.Add(new GridActor(
 	                 Color(0.8, 0.8, 1.0),
 	                 Color(1.0, 0, 0),
-	                 1.0,
+	                 5.0,
 	                 Vector2(-5000, -5000),
 	                 Vector2(5000, 5000)
 	             ), -1);

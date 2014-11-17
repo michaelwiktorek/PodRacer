@@ -208,6 +208,7 @@ PodRacer::PodRacer()
 	leftEngine = new PodEngine(-2, 5);
 	rightEngine = new PodEngine(2, 5);
 	pod = new Pod(0, -2);
+	hud = new HUD();
 
 	b2DistanceJointDef engineCouplerJointDef;
 	engineCouplerJointDef.bodyA = leftEngine->GetBody();
@@ -236,6 +237,7 @@ PodRacer::PodRacer()
 	theWorld.Add(leftEngine);
 	theWorld.Add(rightEngine);
 	theWorld.Add(pod);
+	theWorld.Add(hud);
 }
 
 /**
@@ -273,4 +275,11 @@ void PodRacer::Update(float dt)
 
 	leftEngine->throttle = leftThrottle;
 	rightEngine->throttle = rightThrottle;
+
+	UpdateHUD();
+}
+
+void PodRacer::UpdateHUD()
+{
+	hud->SetEngines(leftEngine->throttle, rightEngine->throttle);
 }

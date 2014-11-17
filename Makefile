@@ -58,7 +58,8 @@ SRCS = \
 	Main.cpp \
 	PodGameManager.cpp \
 	PodRacer.cpp \
-	Aerodynamics.cpp 
+	Aerodynamics.cpp \
+	HUD.cpp
 
 SYSOBJS = $(patsubst %.cpp,%.o,$(SYSSRCS))
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))

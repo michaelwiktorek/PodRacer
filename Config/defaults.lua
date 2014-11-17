@@ -2,10 +2,10 @@
 
 -- Settings that affect window creation
 WindowSettings = {
-	windowWidth = 800,
-	windowHeight = 600,
+	windowWidth = 1440,
+	windowHeight = 900,
 	windowName = "Pod Racer",
-	antiAliasing = true,
-	fullScreen = false,
+	antiAliasing = false,
+	fullScreen = true,
 	resizable = true
 }
