@@ -163,7 +163,8 @@ void PodEngine::Update(float dt)
 void PodEngine::Render()
 {
 	super::Render();
-	drawLine(localToWorld(this, 0, 1.8), localToWorld(this, 0, -1.8), Color(0, 1, 1), 1);
+	float drawPoint = std::max(3.6*throttle-1.8, -1.8);
+	drawLine(localToWorld(this, 0, drawPoint), localToWorld(this, 0, -1.8), Color(0, 1, 1), 1);
 
 	Vector2 leftStart = Vector2(-0.5, 1);
 	Vector2 leftEnd = leftStart + Vector2(-sin(leftFlap), cos(leftFlap)) * 0.8;
@@ -311,4 +312,5 @@ void PodRacer::Update(float dt)
 
 	leftEngine->throttle = leftThrottle;
 	rightEngine->throttle = rightThrottle;
+
 }
