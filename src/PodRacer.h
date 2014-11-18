@@ -26,6 +26,12 @@ public:
 	typedef PhysicsActor super;
 	Pod(float x, float y);
 	virtual void Update(float dt);
+	virtual void Render();
+	virtual void SetLeftFlap(float x);
+	virtual void SetRightFlap(float x);
+
+	float leftFlap;
+	float rightFlap;
 };
 
 class PodRacer : public Actor

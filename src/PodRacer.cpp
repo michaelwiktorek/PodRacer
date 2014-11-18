@@ -128,7 +128,7 @@ void PodEngine::SetRightFlap(float x)
 float PodEngine::GetMaxThrust()
 {
 	float result = theTuning.GetFloat("EnginePower");
-	result += GetBody()->GetLinearVelocity().Length() * 0.0005 * result;
+	result += GetBody()->GetLinearVelocity().Length() * 0.0115 * result;
 	return result;
 }
 
@@ -186,6 +186,9 @@ Pod::Pod(float x, float y)
 	SetRestitution(0.1f);
 	SetFriction(0.3f);
 	InitPhysics();
+
+	leftFlap = 0;
+	rightFlap = 0;
 }
 
 /**
@@ -194,7 +197,40 @@ Pod::Pod(float x, float y)
 void Pod::Update(float dt)
 {
 	applyAerodynamics(this, theTuning.GetFloat("PodDrag"));
+
+	b2Vec2 leftStart = b2Vec2(-0.5, 0);
+	b2Vec2 leftEnd = leftStart + b2Vec2(-1, 0);
+	applyAerodynamicsToEdge(this, leftStart, leftEnd, theTuning.GetFloat("FlapDrag") * leftFlap, 0.0);
+	b2Vec2 rightStart = b2Vec2(0.5, 0);
+	b2Vec2 rightEnd = rightStart + b2Vec2(1, 0);
+	applyAerodynamicsToEdge(this, rightEnd, rightStart, theTuning.GetFloat("FlapDrag") * rightFlap, 0.0);
 }
+
+/**
+ * Draw the pod and it's flaps.
+ */
+void Pod::Render()
+{
+	super::Render();
+
+	Vector2 leftStart = Vector2(-1.0, 0);
+	Vector2 leftEnd = leftStart + Vector2(-sin(leftFlap), cos(leftFlap)) * 0.8;
+	drawLine(localToWorld(this, leftStart), localToWorld(this, leftEnd), Color(0, 0, 0), 1);
+	Vector2 rightStart = Vector2(1.0, 0);
+	Vector2 rightEnd = rightStart + Vector2(sin(rightFlap), cos(rightFlap)) * 0.8;
+	drawLine(localToWorld(this, rightStart), localToWorld(this, rightEnd), Color(0, 0, 0), 1);
+}
+
+void Pod::SetLeftFlap(float x)
+{
+	leftFlap = MathUtil::Clamp(x, 0.0f, 1.0f);
+}
+
+void Pod::SetRightFlap(float x)
+{
+	rightFlap = MathUtil::Clamp(x, 0.0f, 1.0f);
+}
+
 
 
 /**
@@ -225,7 +261,7 @@ PodRacer::PodRacer()
 	b2RopeJointDef podRopeJointDef;
 	podRopeJointDef.bodyA = pod->GetBody();
 	podRopeJointDef.bodyB = leftEngine->GetBody();
-	podRopeJointDef.maxLength = 8.0f;
+	podRopeJointDef.maxLength = theTuning.GetFloat("PodRopeLength");
 	podRopeJointDef.collideConnected = true;
 
 	bindPod(podRopeJointDef, -0.75f, 1.5f, 0, -2.0f);
@@ -270,6 +306,8 @@ void PodRacer::Update(float dt)
 	leftEngine->SetRightFlap(rightTrigger);
 	rightEngine->SetLeftFlap(leftTrigger);
 	rightEngine->SetRightFlap(rightTrigger);
+	pod->SetLeftFlap(leftTrigger);
+	pod->SetRightFlap(rightTrigger);
 
 	leftEngine->throttle = leftThrottle;
 	rightEngine->throttle = rightThrottle;
