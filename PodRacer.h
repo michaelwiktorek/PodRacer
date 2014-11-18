@@ -1,7 +1,6 @@
 #pragma once
 
 #include "stdafx.h"
-#include "HUD.h"
 
 class PodEngine : public PhysicsActor
 {
@@ -41,7 +40,6 @@ public:
 	PodEngine *leftEngine;
 	PodEngine *rightEngine;
 	Pod *pod;
-	HUD *hud;
 
 	float t;
 };
