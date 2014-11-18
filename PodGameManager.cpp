@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PodGameManager.h"
-#include "PodRacer.h"
+#include "HUD.h"
 
 /**
  * Create a new game manager. This is the top level of control for the game.
@@ -18,16 +18,19 @@ PodGameManager::PodGameManager()
 	theWorld.Add(new GridActor(
 	                 Color(0.8, 0.8, 1.0),
 	                 Color(1.0, 0, 0),
-	                 1.0,
+	                 5.0,
 	                 Vector2(-5000, -5000),
 	                 Vector2(5000, 5000)
 	             ), -1);
 
 	PodRacer *podRacer = new PodRacer();
 	theWorld.Add(podRacer);
+	HUD *hud = new HUD(podRacer);
+	theWorld.Add(hud);
+	
 
 	theCamera.SetPosition(0, 0, 40);
-	theCamera.LockTo(podRacer->pod);
+	theCamera.LockTo(hud->podRacer->pod);
 }
 
 /** The only instance of this class. */

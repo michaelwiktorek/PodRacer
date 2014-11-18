@@ -35,6 +35,7 @@ public:
 	PodRacer();
 	virtual void Render();
 	virtual void Update(float dt);
+	void UpdateHUD();
 
 	PodEngine *leftEngine;
 	PodEngine *rightEngine;
