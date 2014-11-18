@@ -1,7 +1,8 @@
 ANGEL_DISABLE_FMOD := $(shell sed -rn 's/^[[:space:]]*\#define[[:space:]]+ANGEL_DISABLE_FMOD[[:space:]]+([[:digit:]])[[:space:]]*$$/\1/p' ../Angel/AngelConfig.h)
 ANGEL_DISABLE_DEVIL := $(shell sed -rn 's/^[[:space:]]*\#define[[:space:]]+ANGEL_DISABLE_DEVIL[[:space:]]+([[:digit:]])[[:space:]]*$$/\1/p' ../Angel/AngelConfig.h)
-CXX = g++
-TARGET = ClientGame
+
+COMPILER = g++
+TARGET = PodRacer
 ANGEL_FLAGS = -D ANGEL_RELEASE
 ARCH := $(shell uname -m)
 ALLEGRO_LIBS := $(shell allegro-config --libs 2>/dev/null)
@@ -11,23 +12,24 @@ LIBANGEL = ../Angel/libangel.a
 LUA = ../Angel/Libraries/angel-lua-build/lua
 WRAPPER = ../Angel/Scripting/Interfaces/AngelLuaWrapping.cpp
 
-INCLUDE = 							\
-	-I../Angel						\
-	-I../Angel/Libraries/glfw-3.0.3/include			\
-	-I../Angel/Libraries/Box2D-2.2.1			\
-	-I../Angel/Libraries/FTGL/include			\
-	-I../Angel/Libraries/lua-5.2.1/src			\
+INCLUDE = \
+	-I../Angel \
+	-I../Angel/Libraries/glfw-3.0.3/include \
+	-I../Angel/Libraries/Box2D-2.2.1 \
+	-I../Angel/Libraries/FTGL/include \
+	-I../Angel/Libraries/lua-5.2.1/src \
+	-I./src \
 	-I/usr/include/freetype2
 ifneq ($(ANGEL_DISABLE_FMOD), 1)
 	INCLUDE += -I../Angel/Libraries/FMOD/inc
 endif
 
-LIBS = 									\
-	$(LIBANGEL)							\
-	../Angel/Libraries/glfw-3.0.3/src/libglfw3.a			\
-	../Angel/Libraries/Box2D-2.2.1/Build/Box2D/libBox2D.a		\
-	../Angel/Libraries/FTGL/unix/src/.libs/libftgl.a		\
-	../Angel/Libraries/gwen/lib/linux/gmake/libgwen_static.a	\
+LIBS = \
+	$(LIBANGEL) \
+	../Angel/Libraries/glfw-3.0.3/src/libglfw3.a \
+	../Angel/Libraries/Box2D-2.2.1/Build/Box2D/libBox2D.a \
+	../Angel/Libraries/FTGL/unix/src/.libs/libftgl.a \
+	../Angel/Libraries/gwen/lib/linux/gmake/libgwen_static.a \
 	../Angel/Libraries/angel-lua-build/liblua.a
 
 ifneq ($(ANGEL_DISABLE_FMOD), 1)
@@ -49,42 +51,36 @@ else
 	SHLIBS += -lpng
 endif
 
-SYSSRCS = \
+SYSSOURCES = \
 	$(WRAPPER)
 
 # LIST OUR SOURCES HERE
-SRCS = \
-	stdafx.cpp \
-	Main.cpp \
-	PodGameManager.cpp \
-	PodRacer.cpp \
-	Aerodynamics.cpp \
-	HUD.cpp
+SOURCES := $(shell find src -type f -name *.cpp)
 
-SYSOBJS = $(patsubst %.cpp,%.o,$(SYSSRCS))
-OBJS = $(patsubst %.cpp,%.o,$(SRCS))
+SYS_OBJECTS = $(patsubst %.cpp,%.o,$(SYSSOURCES))
+OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 
 .PHONY: clean all SWIG-Wrapper
 
 %.o: %.cpp
-	$(CXX) -c $(INCLUDE) -Wno-write-strings -Wno-deprecated -o $@ $^
+	$(COMPILER) -c $(INCLUDE) -Wno-write-strings -Wno-deprecated -o $@ $^
 
 all: $(TARGET)
 
 publish: $(TARGET)
-	$(LUA) ../Tools/BuildScripts/publish_linux.lua -i $(CWD) -e ClientGame
+	$(LUA) ../Tools/BuildScripts/publish_linux.lua -i $(CWD) -e $(TARGET)
 
 SWIG-Wrapper:
 	$(LUA) ../Tools/BuildScripts/swig_wrap.lua -p "$(CODE_DIR)"
 
 $(WRAPPER): SWIG-Wrapper
 
-$(TARGET): $(LIBANGEL) $(OBJS) $(SYSOBJS) $(WRAPPER)
-	$(CXX) -o $@ $(OBJS) $(SYSOBJS) $(LIBS) $(SHLIBS) $(ANGEL_FLAGS)
+$(TARGET): $(LIBANGEL) $(OBJECTS) $(SYS_OBJECTS) $(WRAPPER)
+	$(COMPILER) -o $@ $(OBJECTS) $(SYS_OBJECTS) $(LIBS) $(SHLIBS) $(ANGEL_FLAGS)
 	cp -p ../Angel/Scripting/EngineScripts/*.lua Resources/Scripts
 
 clean:
-	rm -f $(OBJS) $(SYSOBJS) $(TARGET) $(WRAPPER)
+	rm -f $(OBJECTS) $(SYS_OBJECTS) $(TARGET) $(WRAPPER)
 
 $(LIBANGEL):
 	cd ../Angel && make

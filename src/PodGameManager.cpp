@@ -27,9 +27,9 @@ PodGameManager::PodGameManager()
 	theWorld.Add(podRacer);
 	HUD *hud = new HUD(podRacer);
 	theWorld.Add(hud);
-	
 
-	theCamera.SetPosition(0, 0, 40);
+
+	theCamera.SetPosition(0, 0,  40);
 	theCamera.LockTo(hud->podRacer->pod);
 }
 

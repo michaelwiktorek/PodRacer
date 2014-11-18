@@ -14,7 +14,7 @@ PodSpringDamping = {
 -- Damping of the springs holding the engines together
 EnginePower = {
 	type = "float",
-	value = 500
+	value = 800
 }
 
 -- Constant for amount of drag applied to things
@@ -45,4 +45,10 @@ FlapDrag = {
 PodDrag = {
 	type = "float",
 	value = 1.5
+}
+
+-- Air friction applied to the pod
+PodRopeLength = {
+	type = "float",
+	value = 10.0
 }
