@@ -17,9 +17,6 @@ HUD::HUD(Racer *racer)
 	rightEngineBar->SetColor(Color(0.5f, 0.3f, 0.3f, 0.6f));
 	rightEngineBar->SetSize(50.0f, racer->rightEngine->throttle * SCALE_FACTOR);
 	rightEngineBar->SetPosition(250, Y_DIST);
-
-	// theWorld.Add(leftEngineBar);
-	// theWorld.Add(rightEngineBar);
 }
 
 void HUD::Update(float dt)
@@ -33,7 +30,6 @@ void HUD::Update(float dt)
 
 void HUD::Render()
 {
-	//super::Render();
 	// rightEngineBar->Render();
 	// leftEngineBar->Render();
 	// DrawGameText("Left Engine", "Console", 50, Y_DIST-SCALE_FACTOR, 0);
