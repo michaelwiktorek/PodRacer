@@ -51,7 +51,7 @@ void Engine::SetRightFlap(float x)
 float Engine::GetMaxThrust()
 {
 	float result = theTuning.GetFloat("EnginePower");
-	result += GetBody()->GetLinearVelocity().Length() * 0.0115 * result;
+	result += GetBody()->GetLinearVelocity().Length() * 0.001 * result;
 	return result;
 }
 

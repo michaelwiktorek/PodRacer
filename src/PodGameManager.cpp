@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PodGameManager.h"
 #include "racer/Racer.h"
+#include "HumanPodController.h"
 #include "HUD.h"
 
 /**
@@ -28,7 +29,8 @@ PodGameManager::PodGameManager()
 	theWorld.Add(racer);
 	HUD *hud = new HUD(racer);
 	theWorld.Add(hud);
-
+	HumanPodController *humanController = new HumanPodController(racer);
+	theWorld.Add(humanController);
 
 	theCamera.SetPosition(0, 0,  40);
 	theCamera.LockTo(hud->racer->pod);

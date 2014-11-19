@@ -14,7 +14,7 @@ PodSpringDamping = {
 -- Damping of the springs holding the engines together
 EnginePower = {
 	type = "float",
-	value = 800
+	value = 400
 }
 
 -- Constant for amount of drag applied to things
