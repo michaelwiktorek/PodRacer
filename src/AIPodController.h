@@ -5,9 +5,9 @@
 #include "PodRacer.h"
 
 /**
- * Controls a pod racer with AI.
+ * Controls a pod racer with input from the controller.
  */
-class HumanPodController : public PodController
+class AIPodController : public PodController
 {
 public:
 	using PodController::PodController;

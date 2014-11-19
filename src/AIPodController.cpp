@@ -1,6 +1,6 @@
-#import "HumanPodController.h"
+#import "AIPodController.h"
 
-void HumanPodController::Update(float dt)
+void AIPodController::Update(float dt)
 {
 	super::Update(dt);
 
