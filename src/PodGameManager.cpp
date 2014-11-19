@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PodGameManager.h"
+#include "HumanPodController.h"
 #include "HUD.h"
 
 /**
@@ -25,6 +26,8 @@ PodGameManager::PodGameManager()
 
 	PodRacer *podRacer = new PodRacer();
 	theWorld.Add(podRacer);
+	HumanPodController *humanController = new HumanPodController(podRacer);
+	theWorld.Add(humanController);
 	HUD *hud = new HUD(podRacer);
 	theWorld.Add(hud);
 
