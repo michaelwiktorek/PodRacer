@@ -1,20 +1,20 @@
 #pragma once
 
 #include "stdafx.h"
-#include "PodRacer.h"
+#include "racer/Racer.h"
 
 #define SCALE_FACTOR 400
 #define Y_DIST theCamera.GetWindowHeight() + 50
 
-class HUD : public HUDActor 
+class HUD : public HUDActor
 {
 public:
 	typedef HUDActor super;
-	HUD(PodRacer *);
+	HUD(Racer *racer);
 	virtual void Update(float dt);
 	virtual void Render();
 
 	Actor *leftEngineBar;
 	Actor *rightEngineBar;
-	PodRacer *podRacer;
+	Racer *racer;
 };
