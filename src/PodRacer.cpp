@@ -128,7 +128,7 @@ void PodEngine::SetRightFlap(float x)
 float PodEngine::GetMaxThrust()
 {
 	float result = theTuning.GetFloat("EnginePower");
-	result += GetBody()->GetLinearVelocity().Length() * 0.0115 * result;
+	result += GetBody()->GetLinearVelocity().Length() * 0.0015 * result;
 	return result;
 }
 
@@ -163,7 +163,7 @@ void PodEngine::Update(float dt)
 void PodEngine::Render()
 {
 	super::Render();
-	float drawPoint = std::max(3.6*throttle-1.8, -1.8);
+	float drawPoint = std::max(3.6 * throttle - 1.8, -1.8);
 	drawLine(localToWorld(this, 0, drawPoint), localToWorld(this, 0, -1.8), Color(0, 1, 1), 1);
 
 	Vector2 leftStart = Vector2(-0.5, 1);
@@ -292,25 +292,6 @@ void PodRacer::Render()
  */
 void PodRacer::Update(float dt)
 {
+	super::Update(dt);
 	t += dt;
-	if (!theController.IsConnected())
-	{
-		return;
-	}
-
-	float leftTrigger = (theController.GetLeftTrigger() + 32768.0) / (2 * 32768.0);
-	float rightTrigger = (theController.GetRightTrigger() + 32768.0) / (2 * 32768.0);
-	float leftThrottle = theController.GetLeftThumbVec2().Y;
-	float rightThrottle = theController.GetRightThumbVec2().Y;
-
-	leftEngine->SetLeftFlap(leftTrigger);
-	leftEngine->SetRightFlap(rightTrigger);
-	rightEngine->SetLeftFlap(leftTrigger);
-	rightEngine->SetRightFlap(rightTrigger);
-	pod->SetLeftFlap(leftTrigger);
-	pod->SetRightFlap(rightTrigger);
-
-	leftEngine->throttle = leftThrottle;
-	rightEngine->throttle = rightThrottle;
-
 }
