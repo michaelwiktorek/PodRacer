@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PodGameManager.h"
+#include "racer/Racer.h"
 #include "HumanPodController.h"
 #include "HUD.h"
 
@@ -24,16 +25,15 @@ PodGameManager::PodGameManager()
 	                 Vector2(5000, 5000)
 	             ), -1);
 
-	PodRacer *podRacer = new PodRacer();
-	theWorld.Add(podRacer);
-	HumanPodController *humanController = new HumanPodController(podRacer);
-	theWorld.Add(humanController);
-	HUD *hud = new HUD(podRacer);
+	Racer *racer = new Racer();
+	theWorld.Add(racer);
+	HUD *hud = new HUD(racer);
 	theWorld.Add(hud);
-
+	HumanPodController *humanController = new HumanPodController(racer);
+	theWorld.Add(humanController);
 
 	theCamera.SetPosition(0, 0,  40);
-	theCamera.LockTo(hud->podRacer->pod);
+	theCamera.LockTo(hud->racer->pod);
 }
 
 /** The only instance of this class. */

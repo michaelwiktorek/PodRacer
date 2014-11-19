@@ -14,13 +14,13 @@ void HumanPodController::Update(float dt)
 	float leftThrottle = theController.GetLeftThumbVec2().Y;
 	float rightThrottle = theController.GetRightThumbVec2().Y;
 
-	podRacer->leftEngine->SetLeftFlap(leftTrigger);
-	podRacer->leftEngine->SetRightFlap(rightTrigger);
-	podRacer->rightEngine->SetLeftFlap(leftTrigger);
-	podRacer->rightEngine->SetRightFlap(rightTrigger);
-	podRacer->pod->SetLeftFlap(leftTrigger);
-	podRacer->pod->SetRightFlap(rightTrigger);
+	racer->leftEngine->SetLeftFlap(leftTrigger);
+	racer->leftEngine->SetRightFlap(rightTrigger);
+	racer->rightEngine->SetLeftFlap(leftTrigger);
+	racer->rightEngine->SetRightFlap(rightTrigger);
+	racer->pod->SetLeftFlap(leftTrigger);
+	racer->pod->SetRightFlap(rightTrigger);
 
-	podRacer->leftEngine->throttle = leftThrottle;
-	podRacer->rightEngine->throttle = rightThrottle;
+	racer->leftEngine->throttle = leftThrottle;
+	racer->rightEngine->throttle = rightThrottle;
 }

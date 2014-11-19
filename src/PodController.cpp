@@ -5,20 +5,20 @@ PodController::PodController()
 	super();
 }
 
-PodController::PodController(PodRacer *newPodRacer)
+PodController::PodController(Racer *newRacer)
 {
 	super();
-	SetPodRacer(newPodRacer);
+	SetRacer(newRacer);
 }
 
-PodRacer *PodController::GetPodRacer()
+Racer *PodController::GetRacer()
 {
-	return podRacer;
+	return racer;
 }
 
-void PodController::SetPodRacer(PodRacer *newPodRacer)
+void PodController::SetRacer(Racer *newRacer)
 {
-	podRacer = newPodRacer;
+	racer = newRacer;
 }
 
 void PodController::Update(float dt)

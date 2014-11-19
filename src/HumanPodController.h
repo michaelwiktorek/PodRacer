@@ -2,7 +2,6 @@
 
 #include <stdafx.h>
 #include "PodController.h"
-#include "PodRacer.h"
 
 /**
  * Controls a pod racer with AI.

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdafx.h>
-#include "PodRacer.h"
+#include "racer/Racer.h"
 
 /**
  * Controls a pod racer.
@@ -11,11 +11,11 @@ class PodController : public Actor
 public:
 	typedef Actor super;
 	PodController();
-	PodController(PodRacer *podRacer);
+	PodController(Racer *racer);
 	void virtual Update(float dt);
 	void virtual Render();
-	void SetPodRacer(PodRacer *podRacer);
-	PodRacer *GetPodRacer();
+	void SetRacer(Racer *racer);
+	Racer *GetRacer();
 protected:
-	PodRacer *podRacer;
+	Racer *racer;
 };

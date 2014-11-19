@@ -2,11 +2,14 @@
 
 #include <stdafx.h>
 
-class PodEngine : public PhysicsActor
+/**
+ * The engine of a pod racer. Has flaps to steer.
+ */
+class Engine : public PhysicsActor
 {
 public:
 	typedef PhysicsActor super;
-	PodEngine(float x, float y);
+	Engine(float x, float y);
 	virtual void Update(float dt);
 	virtual void Render();
 	virtual void SetLeftFlap(float x);
@@ -15,11 +18,13 @@ public:
 
 	ParticleActor *exhaust;
 	float throttle;
-
 	float leftFlap;
 	float rightFlap;
 };
 
+/**
+ * The pod where the pilot sits.
+ */
 class Pod : public PhysicsActor
 {
 public:
@@ -34,17 +39,19 @@ public:
 	float rightFlap;
 };
 
-class PodRacer : public Actor
+/**
+ * The owner of the two engines and a pod.
+ */
+class Racer : public Actor
 {
 public:
 	typedef Actor super;
-	PodRacer();
+	Racer();
 	virtual void Render();
 	virtual void Update(float dt);
-	void UpdateHUD();
 
-	PodEngine *leftEngine;
-	PodEngine *rightEngine;
+	Engine *leftEngine;
+	Engine *rightEngine;
 	Pod *pod;
 
 	float t;
