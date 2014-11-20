@@ -6,6 +6,6 @@ WindowSettings = {
 	windowHeight = 900,
 	windowName = "Pod Racer",
 	antiAliasing = false,
-	fullScreen = false,
+	fullScreen = true,
 	resizable = true
 }

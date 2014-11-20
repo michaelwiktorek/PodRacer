@@ -2,7 +2,7 @@
 #include "PodGameManager.h"
 #include "racer/Racer.h"
 #include "HumanPodController.h"
-#include "HUD.h"
+//#include "HUD.h"
 
 /**
  * Create a new game manager. This is the top level of control for the game.
@@ -27,13 +27,13 @@ PodGameManager::PodGameManager()
 
 	Racer *racer = new Racer();
 	theWorld.Add(racer);
-	HUD *hud = new HUD(racer);
-	theWorld.Add(hud);
+	//HUD *hud = new HUD(racer);
+	//theWorld.Add(hud);
 	HumanPodController *humanController = new HumanPodController(racer);
 	theWorld.Add(humanController);
 
 	theCamera.SetPosition(0, 0,  40);
-	theCamera.LockTo(hud->racer->pod);
+	theCamera.LockTo(racer->pod);
 }
 
 /** The only instance of this class. */
