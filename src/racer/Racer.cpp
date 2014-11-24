@@ -3,17 +3,6 @@
 #include <math.h>
 
 /**
- * Helper function to create a distance joint between engines.
- */
-inline void bindEngines(b2DistanceJointDef &jointDef, float ay, float by, float length)
-{
-	jointDef.length = length;
-	jointDef.localAnchorA.Set(0.5f, ay); // TODO: Do I have to make a b2Vec2 first?
-	jointDef.localAnchorB.Set(-0.5f, by);
-	theWorld.GetPhysicsWorld().CreateJoint(&jointDef);
-}
-
-/**
  * Helper function to create a rope joint between pod and engine.
  */
 inline void bindPod(b2RopeJointDef &jointDef, float ax, float ay, float bx, float by)
@@ -33,17 +22,27 @@ Racer::Racer()
 	rightEngine = new Engine(2, 5);
 	pod = new Pod(0, -2);
 
-	b2DistanceJointDef engineCouplerJointDef;
-	engineCouplerJointDef.bodyA = leftEngine->GetBody();
-	engineCouplerJointDef.bodyB = rightEngine->GetBody();
-	engineCouplerJointDef.collideConnected = true;
-	engineCouplerJointDef.frequencyHz = theTuning.GetFloat("PodSpringStrength");
-	engineCouplerJointDef.dampingRatio = theTuning.GetFloat("PodSpringDamping");
+	b2DistanceJointDef engineCouplingJointDef;
+	engineCouplingJointDef.bodyA = leftEngine->GetBody();
+	engineCouplingJointDef.bodyB = rightEngine->GetBody();
+	engineCouplingJointDef.collideConnected = true;
+	engineCouplingJointDef.frequencyHz = theTuning.GetFloat("PodSpringStrength");
+	engineCouplingJointDef.dampingRatio = theTuning.GetFloat("PodSpringDamping");
 
-	bindEngines(engineCouplerJointDef, 2.0f, -2.0f, 5.0f);
-	bindEngines(engineCouplerJointDef, -2.0f, 2.0f, 5.0f);
-	bindEngines(engineCouplerJointDef, 2.0f, 2.0f, 3.0f);
-	bindEngines(engineCouplerJointDef, -2.0f, -2.0f, 3.0f);
+	engineCouplingLengths[0] = 3;
+	engineCouplingLengths[1] = 5;
+	engineCouplingLengths[2] = 5;
+	engineCouplingLengths[3] = 3;
+
+	for (int i = 0; i < 4; i++)
+	{
+		float ay = (i % 2 == 0) ? 2 : -2;
+		float by = (i / 2 == 0) ? 2 : -2;
+		engineCouplingJointDef.length = engineCouplingLengths[i];
+		engineCouplingJointDef.localAnchorA.Set(0.5f, ay);
+		engineCouplingJointDef.localAnchorB.Set(-0.5f, by);
+		engineCouplings[i] = static_cast<b2DistanceJoint *>(theWorld.GetPhysicsWorld().CreateJoint(&engineCouplingJointDef));
+	}
 
 	// TODO: Some sort of stretchy rope
 	b2RopeJointDef podRopeJointDef;
@@ -74,23 +73,9 @@ void Racer::Render()
 void Racer::Update(float dt)
 {
 	t += dt;
-	if (!theController.IsConnected())
-	{
-		return;
-	}
 
-	float leftTrigger = (theController.GetLeftTrigger() + 32768.0) / (2 * 32768.0);
-	float rightTrigger = (theController.GetRightTrigger() + 32768.0) / (2 * 32768.0);
-	float leftThrottle = theController.GetLeftThumbVec2().Y;
-	float rightThrottle = theController.GetRightThumbVec2().Y;
-
-	leftEngine->SetLeftFlap(leftTrigger);
-	leftEngine->SetRightFlap(rightTrigger);
-	rightEngine->SetLeftFlap(leftTrigger);
-	rightEngine->SetRightFlap(rightTrigger);
-	pod->SetLeftFlap(leftTrigger);
-	pod->SetRightFlap(rightTrigger);
-
-	leftEngine->throttle = leftThrottle;
-	rightEngine->throttle = rightThrottle;
+	// Make engines oscillate
+	float s = sin(t * 17) * 0.07;
+	engineCouplings[1]->SetLength(engineCouplingLengths[1] + s);
+	engineCouplings[2]->SetLength(engineCouplingLengths[2] + s);
 }
