@@ -53,6 +53,7 @@ public:
 	Engine *leftEngine;
 	Engine *rightEngine;
 	Pod *pod;
-
+	float engineCouplingLengths[4];
+	b2DistanceJoint *engineCouplings[4];
 	float t;
 };
