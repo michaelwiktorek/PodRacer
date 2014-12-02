@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
--- Copyright (C) 2008-2013, Shane Liesegang
+-- Copyright (C) 2008-2014, Shane Liesegang
 -- All rights reserved.
 -- 
 -- Redistribution and use in source and binary forms, with or without 
@@ -232,7 +232,7 @@ function Actor_Create(actor_type)
   if (class_name == nil) then
     class_name = "Actor"
   end
-  if (type(_G[class_name]) ~= "function") then
+  if (type(_G[class_name][".constructor"]) ~= "function") then
     print("ERROR: No class called " .. class_name .. " is available.")
     return nil
   end
@@ -282,7 +282,7 @@ function LoadLevel(levelName)
 
     if (desc["def"] ~= nil) then
       a = Actor_Create(desc["def"])
-    elseif (desc["class"]~= nil and type(_G[desc["class"]]) == "function") then
+    elseif (desc["class"]~= nil and type(_G[desc["class"]][".constructor"]) == "function") then
       a = _G[desc["class"]]()
     else
       print("Actor " .. name .. " has no definition specified.")
