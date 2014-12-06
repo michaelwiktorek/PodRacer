@@ -4,6 +4,7 @@
 
 Race::Race()
 {
+	totalLaps = 3;
 	AddCheckpoint(new Checkpoint(0, 0, 40));
 	AddCheckpoint(new Checkpoint(0, 100, 40));
 	AddCheckpoint(new Checkpoint(150, 120, 40));
@@ -21,6 +22,48 @@ void Race::AddRacer(Racer *racer)
 	racers.push_back(racer);
 	racerData[racer] = RacerData();
 	theWorld.Add(racer);
+}
+
+int Race::GetLap(Racer *racer)
+{
+	return racerData[racer].lap;
+}
+
+int Race::GetCheckpointNum(Racer *racer)
+{
+	return racerData[racer].checkpoint;
+}
+
+Checkpoint *Race::GetCheckpoint(Racer *racer)
+{
+	return checkpoints[racerData[racer].checkpoint];
+}
+
+int Race::GetPlace(Racer *racer)
+{
+	for (int i = 0; i < racers.size(); i++)
+	{
+		if (racers[i] == racer)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+int Race::GetNumRacers()
+{
+	return racers.size();
+}
+
+int Race::GetNumCheckpoints()
+{
+	return checkpoints.size();
+}
+
+int Race::GetNumLaps()
+{
+	return totalLaps;
 }
 
 void Race::Update(float dt)
