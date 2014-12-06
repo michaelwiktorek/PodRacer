@@ -21,6 +21,6 @@ void HumanPodController::Update(float dt)
 	racer->pod->SetLeftFlap(leftTrigger);
 	racer->pod->SetRightFlap(rightTrigger);
 
-	racer->leftEngine->throttle = leftThrottle;
-	racer->rightEngine->throttle = rightThrottle;
+	racer->leftEngine->SetThrottle(leftThrottle);
+	racer->rightEngine->SetThrottle(rightThrottle);
 }

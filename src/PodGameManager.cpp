@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "PodGameManager.h"
+#include "race/Race.h"
 #include "racer/Racer.h"
+#include "racer/racers.h"
 #include "HumanPodController.h"
+#include "AIPodController.h"
 //#include "HUD.h"
 
 /**
@@ -25,15 +28,20 @@ PodGameManager::PodGameManager()
 	                 Vector2(5000, 5000)
 	             ), -1);
 
-	Racer *racer = new Racer();
-	theWorld.Add(racer);
-	//HUD *hud = new HUD(racer);
+	Race *race = new Race();
+	theWorld.Add(race);
+	Racer *playerRacer = makeAnakinRacer(0, 0);
+	race->AddRacer(playerRacer);
+	theWorld.Add(new HumanPodController(playerRacer));
+	//HUD *hud = new HUD(playerRacer);
 	//theWorld.Add(hud);
-	HumanPodController *humanController = new HumanPodController(racer);
-	theWorld.Add(humanController);
 
-	theCamera.SetPosition(0, 0,  40);
-	theCamera.LockTo(racer->pod);
+	Racer *aiRacer = makeSebulbaRacer(10, 0);
+	race->AddRacer(aiRacer);
+	theWorld.Add(new AIPodController(aiRacer));
+
+	theCamera.SetPosition(0, 0,  25);
+	theCamera.LockTo(playerRacer->pod);
 }
 
 /** The only instance of this class. */

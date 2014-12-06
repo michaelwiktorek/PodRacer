@@ -11,10 +11,10 @@ PodSpringDamping = {
 	value = 0.03
 }
 
--- Damping of the springs holding the engines together
+-- Base power for an engine
 EnginePower = {
 	type = "float",
-	value = 400
+	value = 100
 }
 
 -- Constant for amount of drag applied to things
