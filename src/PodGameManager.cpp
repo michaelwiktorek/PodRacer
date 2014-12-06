@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PodGameManager.h"
+#include "race/Race.h"
 #include "racer/Racer.h"
 #include "racer/racers.h"
 #include "HumanPodController.h"
@@ -27,14 +28,16 @@ PodGameManager::PodGameManager()
 	                 Vector2(5000, 5000)
 	             ), -1);
 
+	Race *race = new Race();
+	theWorld.Add(race);
 	Racer *playerRacer = makeAnakinRacer(0, 0);
-	theWorld.Add(playerRacer);
+	race->AddRacer(playerRacer);
+	theWorld.Add(new HumanPodController(playerRacer));
 	//HUD *hud = new HUD(playerRacer);
 	//theWorld.Add(hud);
-	theWorld.Add(new HumanPodController(playerRacer));
 
 	Racer *aiRacer = makeSebulbaRacer(10, 0);
-	theWorld.Add(aiRacer);
+	race->AddRacer(aiRacer);
 	theWorld.Add(new AIPodController(aiRacer));
 
 	theCamera.SetPosition(0, 0,  25);
