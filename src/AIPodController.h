@@ -4,7 +4,7 @@
 #include "PodController.h"
 
 /**
- * Controls a pod racer with input from the controller.
+ * Controls a pod racer with AI.
  */
 class AIPodController : public PodController
 {
