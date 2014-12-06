@@ -6,7 +6,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "racer.h"
+#include "racer/Racer.h"
 
 Racer *makeAnakinRacer(float x, float y)
 {
