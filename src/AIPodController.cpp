@@ -40,8 +40,9 @@ void AIPodController::Update(float dt)
 		float turnAmount = angleDelta(currentDirection, targetDirection) / 180.0 * 4.0;
 		turnAmount = 0.5 * (turnAmount * turnAmount * turnAmount) + 0.5 * turnAmount;
 		turnAmount = MathUtil::Clamp(turnAmount, -1.0f, 1.0f);
-		racer->rightEngine->SetThrottle((1.0 +  turnAmount) * 0.9);
-		racer->leftEngine->SetThrottle((1.0 - turnAmount) * 0.9);
+		float maxThrottle = theTuning.GetFloat("AIDifficulty");
+		racer->rightEngine->SetThrottle((1.0 +  turnAmount) * maxThrottle);
+		racer->leftEngine->SetThrottle((1.0 - turnAmount) * maxThrottle);
 	}
 }
 

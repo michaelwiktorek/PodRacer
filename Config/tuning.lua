@@ -35,12 +35,6 @@ EngineDrag = {
 	value = 0.9
 }
 
--- Air friction applied to the pod engines
-FlapDrag = {
-	type = "float",
-	value = 3.5
-}
-
 -- Air friction applied to the pod
 PodDrag = {
 	type = "float",
@@ -51,4 +45,10 @@ PodDrag = {
 PodRopeLength = {
 	type = "float",
 	value = 10.0
+}
+
+-- Maximum thrust allowed by ai
+AIDifficulty = {
+	type = "float",
+	value = 0.85
 }
