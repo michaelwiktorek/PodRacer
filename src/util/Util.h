@@ -34,3 +34,12 @@ void drawLine(float ax, float ay, float bx, float by, Color color, float width);
  * @param width line width in pixels
  */
 void drawLine(Vector2 a, Vector2 b, Color color, float width);
+
+/**
+ * Returns the difference between two angles. Result is between -180 and 180.
+ * All angles in degrees.
+ * @param  a current angle
+ * @param  b target angle
+ * @return
+ */
+float angleDelta(float a, float b);

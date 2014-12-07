@@ -1,5 +1,4 @@
 #include "Aerodynamics.h"
-#include <iostream>
 
 #define LIFT 1.0
 #define DRAG 1.0

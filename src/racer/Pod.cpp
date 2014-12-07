@@ -7,7 +7,6 @@
  */
 Pod::Pod(float x, float y)
 {
-	super();
 	SetSize(1.0, 1.5);
 	SetColor(0.3f, 0.3f, 0.7f);
 	SetPosition(x, y);

@@ -263,6 +263,20 @@ public:
 	 * @param f
 	 */
 	virtual void SetCouplingOscillationRate(float f);
+	/**
+	 * @return World coordinates.
+	 */
+	virtual Vector2 GetPosition();
+	/**
+	 * Get the velocity vector of the pod or something.
+	 * @return velocity vector
+	 */
+	virtual Vector2 GetVelocity();
+	/**
+	 * Get the velocity vector of the pod or something.
+	 * @return velocity vector
+	 */
+	virtual float GetDirection();
 
 	/**
 	 * The left engine of this racer

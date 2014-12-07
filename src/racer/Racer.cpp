@@ -14,7 +14,6 @@ inline void bindPod(b2RopeJointDef &jointDef, float ax, float ay, float bx, floa
 
 Racer::Racer(float x, float y)
 {
-	super();
 	t = 0;
 
 	leftEngine = new Engine(x - 2, y + 5);
@@ -163,4 +162,20 @@ void Racer::SetEngineMeterColor(Color front, Color back)
 	leftEngine->meterBackColor = back;
 	rightEngine->meterColor = front;
 	rightEngine->meterBackColor = back;
+}
+
+Vector2 Racer::GetVelocity()
+{
+	b2Vec2 vel = pod->GetBody()->GetLinearVelocity();
+	return Vector2(vel.x, vel.y);
+}
+
+Vector2 Racer::GetPosition()
+{
+	return pod->GetPosition();
+}
+
+float Racer::GetDirection()
+{
+	return ((leftEngine->GetRotation() + rightEngine->GetRotation()) / 2.0) + 90;
 }

@@ -7,7 +7,6 @@
  */
 Engine::Engine(float x, float y)
 {
-	super();
 	SetSize(0.5, 2.5);
 	SetColor(0.3, 0.3, 0.3);
 	SetPosition(x, y);

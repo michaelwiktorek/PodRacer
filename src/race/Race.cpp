@@ -1,14 +1,13 @@
 #include "Race.h"
-#include <iostream>
 
 
 Race::Race()
 {
 	totalLaps = 3;
-	AddCheckpoint(new Checkpoint(0, 0, 40));
-	AddCheckpoint(new Checkpoint(0, 100, 40));
-	AddCheckpoint(new Checkpoint(150, 120, 40));
-	AddCheckpoint(new Checkpoint(200, 30, 40));
+	AddCheckpoint(new Checkpoint(0, 0, 50));
+	AddCheckpoint(new Checkpoint(-100, 200, 50));
+	AddCheckpoint(new Checkpoint(350, 350, 50));
+	AddCheckpoint(new Checkpoint(500, -100, 50));
 }
 
 void Race::AddCheckpoint(Checkpoint *checkpoint)
@@ -26,24 +25,35 @@ void Race::AddRacer(Racer *racer)
 
 int Race::GetLap(Racer *racer)
 {
-	return racerData[racer].lap;
+	return racerData.at(racer).lap;
 }
 
 int Race::GetCheckpointNum(Racer *racer)
 {
-	return racerData[racer].checkpoint;
+	return racerData.at(racer).checkpoint;
+}
+
+
+Checkpoint *Race::GetCheckpoint(int i)
+{
+	return checkpoints.at(i % checkpoints.size());
 }
 
 Checkpoint *Race::GetCheckpoint(Racer *racer)
 {
-	return checkpoints[racerData[racer].checkpoint];
+	return GetCheckpoint(racer, 0);
+}
+
+Checkpoint *Race::GetCheckpoint(Racer *racer, int i)
+{
+	return GetCheckpoint(GetCheckpointNum(racer) + i);
 }
 
 int Race::GetPlace(Racer *racer)
 {
 	for (int i = 0; i < racers.size(); i++)
 	{
-		if (racers[i] == racer)
+		if (racers.at(i) == racer)
 		{
 			return i;
 		}
@@ -70,16 +80,16 @@ void Race::Update(float dt)
 {
 	for (Racer *racer : racers)
 	{
-		RacerData &data = racerData[racer];
+		RacerData &data = racerData.at(racer);
 		Checkpoint *checkpoint = checkpoints[data.checkpoint];
 		float distance = (checkpoint->GetPosition() - racer->pod->GetPosition()).Length();
 		if (distance < checkpoint->width / 2)
 		{
-			std::cout << "checkpoint reached: " << data.checkpoint << "\n";
+			std::cout << racer->GetName() << " reached checkpoint: " << data.checkpoint << "\n";
 			data.checkpoint++;
 			if (data.checkpoint >= checkpoints.size())
 			{
-				std::cout << "lap completed: " << data.lap << "\n";
+				std::cout << racer->GetName() << " completed lap: " << data.lap << "\n";
 				data.lap++;
 				data.checkpoint = 0;
 			}

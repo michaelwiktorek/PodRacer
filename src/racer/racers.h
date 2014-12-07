@@ -73,7 +73,7 @@ Racer *makeSebulbaRacer(float x, float y)
 	racer->SetCouplingOscillationAmount(0.1);
 	racer->SetCouplingOscillationRate(8);
 	racer->SetEngineDistance(2.0);
-	racer->SetBaseThrust(5.8);
+	racer->SetBaseThrust(4.0);
 	racer->Init();
 	return racer;
 }

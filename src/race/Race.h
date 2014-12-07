@@ -63,6 +63,19 @@ public:
 	 */
 	virtual Checkpoint *GetCheckpoint(Racer *racer);
 	/**
+	 * Get the target + i checkpoint for this racer.
+	 * @param  racer
+	 * @param  i number of checkpoints ahead
+	 * @return checkpoint
+	 */
+	virtual Checkpoint *GetCheckpoint(Racer *racer, int i);
+	/**
+	 * Get the ith checkpoint.
+	 * @param  i index of the checkpoint
+	 * @return checkpoint
+	 */
+	virtual Checkpoint *GetCheckpoint(int i);
+	/**
 	 * @return total number of racers
 	 */
 	virtual int GetNumRacers();

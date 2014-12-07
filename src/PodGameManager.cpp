@@ -36,9 +36,10 @@ PodGameManager::PodGameManager()
 	//HUD *hud = new HUD(playerRacer);
 	//theWorld.Add(hud);
 
-	Racer *aiRacer = makeSebulbaRacer(10, 0);
+	// Racer *aiRacer = makeSebulbaRacer(10, 0);
+	Racer *aiRacer = makeAnakinRacer(10, 0);
 	race->AddRacer(aiRacer);
-	theWorld.Add(new AIPodController(aiRacer));
+	theWorld.Add(new AIPodController(aiRacer, race));
 
 	theCamera.SetPosition(0, 0,  25);
 	theCamera.LockTo(playerRacer->pod);

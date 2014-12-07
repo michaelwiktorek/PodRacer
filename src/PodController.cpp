@@ -2,12 +2,10 @@
 
 PodController::PodController()
 {
-	super();
 }
 
 PodController::PodController(Racer *newRacer)
 {
-	super();
 	SetRacer(newRacer);
 }
 
