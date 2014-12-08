@@ -222,6 +222,16 @@ public:
 	 */
 	virtual void Init();
 	/**
+	 * Set the left flaps on the pod and engines.
+	 * @param x
+	 */
+	virtual void SetLeftFlaps(float x);
+	/**
+	 * Set the right flaps on the pod and engines.
+	 * @param x
+	 */
+	virtual void SetRightFlaps(float x);
+	/**
 	 * Set the base distance between the engines.
 	 * @param d
 	 */

@@ -4,23 +4,28 @@
 Race::Race()
 {
 	totalLaps = 3;
-	AddCheckpoint(new Checkpoint(0, 0, 50));
-	AddCheckpoint(new Checkpoint(-100, 200, 50));
-	AddCheckpoint(new Checkpoint(350, 350, 50));
-	AddCheckpoint(new Checkpoint(500, -100, 50));
+	Checkpoint *middle = new Checkpoint(0, 0, 20);
+	AddCheckpoint(new Checkpoint(300, 200, 80));
+	AddCheckpoint(new Checkpoint(450, 0, 80));
+	AddCheckpoint(new Checkpoint(300, -200, 80));
+	AddCheckpoint(middle);
+	AddCheckpoint(new Checkpoint(-300, 200, 80));
+	AddCheckpoint(new Checkpoint(-450, 0, 80));
+	AddCheckpoint(new Checkpoint(-300, -200, 80));
+	AddCheckpoint(middle);
 }
 
 void Race::AddCheckpoint(Checkpoint *checkpoint)
 {
 	checkpoints.push_back(checkpoint);
-	theWorld.Add(checkpoint);
+	theWorld.Add(checkpoint, "Ground");
 }
 
 void Race::AddRacer(Racer *racer)
 {
 	racers.push_back(racer);
 	racerData[racer] = RacerData();
-	theWorld.Add(racer);
+	theWorld.Add(racer, "Racers");
 }
 
 int Race::GetLap(Racer *racer)

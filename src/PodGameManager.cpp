@@ -19,7 +19,10 @@ PodGameManager::PodGameManager()
 	                      Vector2(5000, 5000),
 	                      Vector2(-5000, -5000));
 
-	// theWorld.SetSideBlockers(true, 0.7f);
+	theWorld.NameLayer("Ground", 20);
+	theWorld.NameLayer("Main", 10);
+	theWorld.NameLayer("Racers", 0);
+	theWorld.NameLayer("HUD", -10);
 	theWorld.Add(new GridActor(
 	                 Color(0.8, 0.8, 1.0),
 	                 Color(1.0, 0, 0),
@@ -29,19 +32,38 @@ PodGameManager::PodGameManager()
 	             ), -1);
 
 	Race *race = new Race();
-	theWorld.Add(race);
-	Racer *playerRacer = makeAnakinRacer(0, 0);
+	theWorld.Add(race, "Main");
+	Racer *playerRacer = makeSebulbaRacer(0, 0);
+	playerRacer->pod->SetColor(Color(0, 0, 0));
+	playerRacer->leftEngine->SetColor(Color(0, 0, 0));
+	playerRacer->rightEngine->SetColor(Color(0, 0, 0));
 	race->AddRacer(playerRacer);
 	theWorld.Add(new HumanPodController(playerRacer));
+
 	//HUD *hud = new HUD(playerRacer);
 	//theWorld.Add(hud);
 
 	// Racer *aiRacer = makeSebulbaRacer(10, 0);
-	Racer *aiRacer = makeAnakinRacer(10, 0);
-	race->AddRacer(aiRacer);
-	theWorld.Add(new AIPodController(aiRacer, race));
+	Racer *aiRacer;
+	int numRacers = 5;
+	for (int i = 0; i < numRacers; i++)
+	{
+		if (i % 2 == 0)
+		{
+			aiRacer = makeAnakinRacer(i * 4 - 5, -5);
+		}
+		else
+		{
+			aiRacer = makeSebulbaRacer(i * 4 - 5, -5);
+		}
+		race->AddRacer(aiRacer);
+		AIPodController *controller = new AIPodController(aiRacer, race);
+		controller->SetDifficulty(0.0 * (float)i / numRacers + 0.95);
+		theWorld.Add(controller);
+	}
 
-	theCamera.SetPosition(0, 0,  25);
+	theCamera.SetPosition(0, 0,  28);
+	theCamera.LockTo(aiRacer);
 	theCamera.LockTo(playerRacer->pod);
 }
 
@@ -60,6 +82,10 @@ PodGameManager &PodGameManager::GetInstance()
 	return *instance;
 }
 
+/**
+ * Receive messages that have been registered.
+ * @param message [description]
+ */
 void PodGameManager::ReceiveMessage(Message *message) {}
 
 /**

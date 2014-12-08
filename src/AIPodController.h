@@ -16,6 +16,8 @@ public:
 	AIPodController(Racer *racer, Race *race);
 	void virtual Update(float dt);
 	virtual void SetRace(Race *race);
+	virtual void SetDifficulty(float difficulty);
 protected:
 	Race *race;
+	float difficulty;
 };

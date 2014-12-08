@@ -77,6 +77,8 @@ void Racer::Init()
 
 void Racer::Render()
 {
+	SetPosition(GetPosition());
+
 	float alpha = (sin(t * couplingOscillationRate * 2) + 4) / 8;
 
 	for (CouplingBeam &couplingBeam : couplingBeams)
@@ -99,6 +101,7 @@ void Racer::Render()
 void Racer::Update(float dt)
 {
 	t += dt;
+	SetPosition(GetPosition());
 
 	// Make engines oscillate
 	float s = 1.0 + sin(t * couplingOscillationRate) * couplingOscillationAmount;
@@ -112,6 +115,20 @@ void Racer::Update(float dt)
 	{
 		engineCouplings[i]->SetFrequency(couplingStrength);
 	}
+}
+
+void Racer::SetLeftFlaps(float x)
+{
+	leftEngine->SetLeftFlap(x);
+	rightEngine->SetLeftFlap(x);
+	pod->SetLeftFlap(x);
+}
+
+void Racer::SetRightFlaps(float x)
+{
+	leftEngine->SetRightFlap(x);
+	rightEngine->SetRightFlap(x);
+	pod->SetRightFlap(x);
 }
 
 void Racer::SetCouplingStrength(float f)
@@ -172,7 +189,7 @@ Vector2 Racer::GetVelocity()
 
 Vector2 Racer::GetPosition()
 {
-	return pod->GetPosition();
+	return (pod->GetPosition() * 2 + leftEngine->GetPosition() + rightEngine->GetPosition()) / 4.0;
 }
 
 float Racer::GetDirection()
