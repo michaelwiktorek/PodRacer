@@ -4,7 +4,6 @@
 
 AeroTest::AeroTest()
 {
-	super();
 	SetSize(1.0, 5.0);
 	SetColor(0.3, 0.3f, 0.3);
 	SetPosition(0, 0);

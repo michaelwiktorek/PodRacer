@@ -11,10 +11,10 @@ PodSpringDamping = {
 	value = 0.03
 }
 
--- Damping of the springs holding the engines together
+-- Base power for an engine
 EnginePower = {
 	type = "float",
-	value = 400
+	value = 110
 }
 
 -- Constant for amount of drag applied to things
@@ -32,23 +32,23 @@ Lift = {
 -- Air friction applied to the pod engines
 EngineDrag = {
 	type = "float",
-	value = 0.9
-}
-
--- Air friction applied to the pod engines
-FlapDrag = {
-	type = "float",
-	value = 3.5
+	value = 0.6
 }
 
 -- Air friction applied to the pod
 PodDrag = {
 	type = "float",
-	value = 1.5
+	value = 1.0
 }
 
 -- Air friction applied to the pod
 PodRopeLength = {
 	type = "float",
 	value = 10.0
+}
+
+-- Maximum thrust allowed by ai
+AIDifficulty = {
+	type = "float",
+	value = 1.00
 }
