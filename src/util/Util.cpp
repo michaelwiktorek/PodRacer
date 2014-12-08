@@ -28,3 +28,8 @@ void drawLine(Vector2 a, Vector2 b, Color color, float width)
 {
 	drawLine(a.X, a.Y, b.X, b.Y, color, width);
 }
+
+float angleDelta(float a, float b)
+{
+	return fmod(360 + 180 + b - a, 360) - 180;
+}

@@ -3,17 +3,6 @@
 #include <math.h>
 
 /**
- * Helper function to create a distance joint between engines.
- */
-inline void bindEngines(b2DistanceJointDef &jointDef, float ay, float by, float length)
-{
-	jointDef.length = length;
-	jointDef.localAnchorA.Set(0.5f, ay); // TODO: Do I have to make a b2Vec2 first?
-	jointDef.localAnchorB.Set(-0.5f, by);
-	theWorld.GetPhysicsWorld().CreateJoint(&jointDef);
-}
-
-/**
  * Helper function to create a rope joint between pod and engine.
  */
 inline void bindPod(b2RopeJointDef &jointDef, float ax, float ay, float bx, float by)
@@ -23,27 +12,49 @@ inline void bindPod(b2RopeJointDef &jointDef, float ax, float ay, float bx, floa
 	theWorld.GetPhysicsWorld().CreateJoint(&jointDef);
 }
 
-
-Racer::Racer()
+Racer::Racer(float x, float y)
 {
-	super();
 	t = 0;
 
-	leftEngine = new Engine(-2, 5);
-	rightEngine = new Engine(2, 5);
-	pod = new Pod(0, -2);
+	leftEngine = new Engine(x - 2, y + 5);
+	rightEngine = new Engine(x + 2, y + 5);
+	pod = new Pod(x, y - 2);
+	couplingStrength = 4.0;
+	couplingOscillationAmount = 0.07;
+	couplingOscillationRate = 17;
 
-	b2DistanceJointDef engineCouplerJointDef;
-	engineCouplerJointDef.bodyA = leftEngine->GetBody();
-	engineCouplerJointDef.bodyB = rightEngine->GetBody();
-	engineCouplerJointDef.collideConnected = true;
-	engineCouplerJointDef.frequencyHz = theTuning.GetFloat("PodSpringStrength");
-	engineCouplerJointDef.dampingRatio = theTuning.GetFloat("PodSpringDamping");
 
-	bindEngines(engineCouplerJointDef, 2.0f, -2.0f, 5.0f);
-	bindEngines(engineCouplerJointDef, -2.0f, 2.0f, 5.0f);
-	bindEngines(engineCouplerJointDef, 2.0f, 2.0f, 3.0f);
-	bindEngines(engineCouplerJointDef, -2.0f, -2.0f, 3.0f);
+	SetEngineDistance(1.5);
+	SetRopeLength(3.5);
+
+	couplingBeams.push_back(CouplingBeam(
+	                            Vector2(leftEngine->GetSize().X * 0.5, 1.0),
+	                            Vector2(rightEngine->GetSize().X * -0.5, 1.0),
+	                            2.0, Color(0.8, 0, 1)));
+}
+
+void Racer::Init()
+{
+	leftEngine->Init();
+	rightEngine->Init();
+	pod->Init();
+
+	b2DistanceJointDef engineCouplingJointDef;
+	engineCouplingJointDef.bodyA = leftEngine->GetBody();
+	engineCouplingJointDef.bodyB = rightEngine->GetBody();
+	engineCouplingJointDef.collideConnected = true;
+	engineCouplingJointDef.frequencyHz = theTuning.GetFloat("PodSpringStrength");
+	engineCouplingJointDef.dampingRatio = theTuning.GetFloat("PodSpringDamping");
+
+	for (int i = 0; i < 4; i++)
+	{
+		float ay = ((i % 2 == 0) ? 1 : -1) * leftEngine->GetSize().Y * 0.45;
+		float by = ((i / 2 == 0) ? 1 : -1) * rightEngine->GetSize().Y * 0.45;
+		engineCouplingJointDef.length = couplingLengths[i];
+		engineCouplingJointDef.localAnchorA.Set(leftEngine->GetSize().X * 0.5, ay);
+		engineCouplingJointDef.localAnchorB.Set(rightEngine->GetSize().X * -0.5, by);
+		engineCouplings[i] = static_cast<b2DistanceJoint *>(theWorld.GetPhysicsWorld().CreateJoint(&engineCouplingJointDef));
+	}
 
 	// TODO: Some sort of stretchy rope
 	b2RopeJointDef podRopeJointDef;
@@ -52,11 +63,13 @@ Racer::Racer()
 	podRopeJointDef.maxLength = theTuning.GetFloat("PodRopeLength");
 	podRopeJointDef.collideConnected = true;
 
-	bindPod(podRopeJointDef, -0.75f, 1.5f, 0, -2.0f);
+	podRopeJointDef.localAnchorA.Set(-0.75, 1.5f);
+	podRopeJointDef.localAnchorB.Set(0, -2);
+	leftRope = static_cast<b2RopeJoint *>(theWorld.GetPhysicsWorld().CreateJoint(&podRopeJointDef));
 	podRopeJointDef.bodyB = rightEngine->GetBody();
-	bindPod(podRopeJointDef, 0.75f, 1.5f, 0, -2.0f);
+	podRopeJointDef.localAnchorA.Set(0.75, 1.5f);
+	rightRope = static_cast<b2RopeJoint *>(theWorld.GetPhysicsWorld().CreateJoint(&podRopeJointDef));
 
-	// TODO: These should be added when the Pod Racer is added to the world, not when it is instantiated.
 	theWorld.Add(leftEngine);
 	theWorld.Add(rightEngine);
 	theWorld.Add(pod);
@@ -64,33 +77,122 @@ Racer::Racer()
 
 void Racer::Render()
 {
-	Color beamColor = Color(0.8, 0, 1, (sin(t * 40) + 4) / 8);
-	drawLine(localToWorld(leftEngine, 0.5, 1), localToWorld(rightEngine, -0.5, 1), beamColor, 2.2);
+	SetPosition(GetPosition());
+
+	float alpha = (sin(t * couplingOscillationRate * 2) + 4) / 8;
+
+	for (CouplingBeam &couplingBeam : couplingBeams)
+	{
+		Color beamColor = couplingBeam.color;
+		beamColor.A *= alpha;
+		Vector2 leftPoint = localToWorld(leftEngine, couplingBeam.leftPosition);
+		Vector2 rightPoint = localToWorld(rightEngine, couplingBeam.rightPosition);
+		drawLine(leftPoint, rightPoint, beamColor, couplingBeam.width);
+	}
+
 	Color ropeColor = Color(0.1, 0.1, 0.1);
-	drawLine(localToWorld(leftEngine, 0, -2), localToWorld(pod, -0.75, 1.5), ropeColor, 1.0);
-	drawLine(localToWorld(rightEngine, 0, -2), localToWorld(pod, 0.75, 1.5), ropeColor, 1.0);
+	float ropeEngineY = leftEngine->GetSize().Y * -0.4;
+	float ropePodX = pod->GetSize().X * 0.3;
+	float ropePodY = pod->GetSize().Y * 0.4;
+	drawLine(localToWorld(leftEngine, 0, ropeEngineY), localToWorld(pod, -ropePodX, ropePodY), ropeColor, 1.0);
+	drawLine(localToWorld(rightEngine, 0, ropeEngineY), localToWorld(pod, ropePodX, ropePodY), ropeColor, 1.0);
 }
 
 void Racer::Update(float dt)
 {
 	t += dt;
-	if (!theController.IsConnected())
+	SetPosition(GetPosition());
+
+	// Make engines oscillate
+	float s = 1.0 + sin(t * couplingOscillationRate) * couplingOscillationAmount;
+	engineCouplings[0]->SetLength(couplingLengths[0] * s);
+	engineCouplings[3]->SetLength(couplingLengths[3] * s);
+	leftRope->SetMaxLength(ropeLength);
+	rightRope->SetMaxLength(ropeLength);
+
+	//
+	for (int i = 0; i < 4; i++)
 	{
-		return;
+		engineCouplings[i]->SetFrequency(couplingStrength);
 	}
+}
 
-	float leftTrigger = (theController.GetLeftTrigger() + 32768.0) / (2 * 32768.0);
-	float rightTrigger = (theController.GetRightTrigger() + 32768.0) / (2 * 32768.0);
-	float leftThrottle = theController.GetLeftThumbVec2().Y;
-	float rightThrottle = theController.GetRightThumbVec2().Y;
+void Racer::SetLeftFlaps(float x)
+{
+	leftEngine->SetLeftFlap(x);
+	rightEngine->SetLeftFlap(x);
+	pod->SetLeftFlap(x);
+}
 
-	leftEngine->SetLeftFlap(leftTrigger);
-	leftEngine->SetRightFlap(rightTrigger);
-	rightEngine->SetLeftFlap(leftTrigger);
-	rightEngine->SetRightFlap(rightTrigger);
-	pod->SetLeftFlap(leftTrigger);
-	pod->SetRightFlap(rightTrigger);
+void Racer::SetRightFlaps(float x)
+{
+	leftEngine->SetRightFlap(x);
+	rightEngine->SetRightFlap(x);
+	pod->SetRightFlap(x);
+}
 
-	leftEngine->throttle = leftThrottle;
-	rightEngine->throttle = rightThrottle;
+void Racer::SetCouplingStrength(float f)
+{
+	couplingStrength = f;
+}
+
+void Racer::SetCouplingOscillationRate(float f)
+{
+	couplingOscillationRate = f;
+}
+
+void Racer::SetCouplingOscillationAmount(float f)
+{
+	couplingOscillationAmount = f;
+}
+
+void Racer::SetEngineDistance(float d)
+{
+	float h = leftEngine->GetSize().Y * 0.9;
+	float d2 = sqrt(h * h + d * d);
+	couplingLengths[0] = d;
+	couplingLengths[3] = d;
+	couplingLengths[1] = d2;
+	couplingLengths[2] = d2;
+}
+
+void Racer::SetRopeLength(float d)
+{
+	ropeLength = d;
+}
+
+void Racer::SetBaseThrust(float p)
+{
+	leftEngine->baseThrust = p;
+	rightEngine->baseThrust = p;
+}
+
+void Racer::SetEngineSize(float width, float height)
+{
+	leftEngine->SetSize(width, height);
+	rightEngine->SetSize(width, height);
+}
+
+void Racer::SetEngineMeterColor(Color front, Color back)
+{
+	leftEngine->meterColor = front;
+	leftEngine->meterBackColor = back;
+	rightEngine->meterColor = front;
+	rightEngine->meterBackColor = back;
+}
+
+Vector2 Racer::GetVelocity()
+{
+	b2Vec2 vel = pod->GetBody()->GetLinearVelocity();
+	return Vector2(vel.x, vel.y);
+}
+
+Vector2 Racer::GetPosition()
+{
+	return (pod->GetPosition() * 2 + leftEngine->GetPosition() + rightEngine->GetPosition()) / 4.0;
+}
+
+float Racer::GetDirection()
+{
+	return ((leftEngine->GetRotation() + rightEngine->GetRotation()) / 2.0) + 90;
 }

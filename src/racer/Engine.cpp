@@ -7,16 +7,16 @@
  */
 Engine::Engine(float x, float y)
 {
-	super();
-	SetSize(1.0, 5.0);
+	SetSize(0.5, 2.5);
 	SetColor(0.3, 0.3, 0.3);
 	SetPosition(x, y);
 	SetRestitution(0.1);
 	SetFriction(0.2);
-	InitPhysics();
 
-	leftFlap = 0;
-	rightFlap = 0;
+	baseThrust = 1.0;
+	meterWidth = 1.0;
+	meterBackColor = Color(0.4, 0.4, 0.4);
+	meterColor = Color(0, 1, 1);
 
 	// Particle emmitter
 	throttle = 0;
@@ -27,32 +27,16 @@ Engine::Engine(float x, float y)
 	exhaust->SetSize(Vector2(0.3, 0.3));
 	exhaust->SetEndScale(0.5);
 	exhaust->SetMaxParticles(1800);
-	exhaust->SetParticlesPerSecond(0.0f);
+	exhaust->SetParticlesPerSecond(60.0f);
 	exhaust->SetParticleLifetime(0.15f);
 	exhaust->SetGravity(Vector2::Zero);
 	exhaust->SetSpeedRange(0, 2);
-	exhaust->SetSpread(MathUtil::Pi);
-	theWorld.Add(exhaust); // TODO: Add at a different time that construction
+	exhaust->SetSpread(0);
 }
 
-void Engine::SetLeftFlap(float x)
+void Engine::Init()
 {
-	leftFlap = MathUtil::Clamp(x, 0.0f, 1.0f);
-}
-
-void Engine::SetRightFlap(float x)
-{
-	rightFlap = MathUtil::Clamp(x, 0.0f, 1.0f);
-}
-
-/**
- * @return The maximum amount of thrust this engine can produce in its current state.
- */
-float Engine::GetMaxThrust()
-{
-	float result = theTuning.GetFloat("EnginePower");
-	result += GetBody()->GetLinearVelocity().Length() * 0.001 * result;
-	return result;
+	InitPhysics();
 }
 
 /**
@@ -60,39 +44,91 @@ float Engine::GetMaxThrust()
  */
 void Engine::Update(float dt)
 {
-	exhaust->SetPosition(localToWorld(this, 0, -2.5));
-
-	float size = throttle * 0.4 + 0.2;
-	exhaust->SetSize(Vector2(size, size));
-	exhaust->SetParticlesPerSecond(60.0f * throttle + 60);
-	exhaust->SetSpeedRange(0, 5 * throttle + 2);
-
 	// Physics
 	applyAerodynamics(this, theTuning.GetFloat("EngineDrag"));
-	b2Vec2 leftStart = b2Vec2(-0.5, 1);
-	b2Vec2 leftEnd = leftStart + b2Vec2(-1, 0);
-	applyAerodynamicsToEdge(this, leftStart, leftEnd, theTuning.GetFloat("FlapDrag") * leftFlap, 0.0);
-	b2Vec2 rightStart = b2Vec2(0.5, 1);
-	b2Vec2 rightEnd = rightStart + b2Vec2(1, 0);
-	applyAerodynamicsToEdge(this, rightEnd, rightStart, theTuning.GetFloat("FlapDrag") * rightFlap, 0.0);
+
+	for (Flap &flap : flaps)
+	{
+		flap.Update(this);
+	}
+
 	if (throttle > 0.01)
 	{
 		Vector2 thrust = Vector2(0, throttle * GetMaxThrust());
 		Vector2 point = Vector2(0, 0); // TODO: Don't apply thrust to center
 		ApplyLocalForce(thrust, point);
 	}
+	// exhaust->Update(dt);
 }
 
 void Engine::Render()
 {
-	super::Render();
-	float drawPoint = std::max(3.6*throttle-1.8, -1.8);
-	drawLine(localToWorld(this, 0, drawPoint), localToWorld(this, 0, -1.8), Color(0, 1, 1), 1);
+	// Exhaust
+	float size = (throttle * 0.4 + 0.25) * GetSize().X;
+	exhaust->SetSize(Vector2(size, size));
+	float speed = 12 - GetBody()->GetLinearVelocity().Length() * 0.7;
+	exhaust->SetSpeedRange(speed, speed);
+	exhaust->SetRotation(GetRotation() - 90);
+	exhaust->SetPosition(localToWorld(this, 0, -GetSize().Y * 0.5));
+	exhaust->Update(1 / 60.0);
+	exhaust->Render();
 
-	Vector2 leftStart = Vector2(-0.5, 1);
-	Vector2 leftEnd = leftStart + Vector2(-sin(leftFlap), cos(leftFlap)) * 0.8;
-	drawLine(localToWorld(this, leftStart), localToWorld(this, leftEnd), Color(0, 0, 0), 1);
-	Vector2 rightStart = Vector2(0.5, 1);
-	Vector2 rightEnd = rightStart + Vector2(sin(rightFlap), cos(rightFlap)) * 0.8;
-	drawLine(localToWorld(this, rightStart), localToWorld(this, rightEnd), Color(0, 0, 0), 1);
+	// Body
+	super::Render();
+
+	// Meter thing
+	float height = GetSize().Y;
+	float meterLength = 0.75 * height;
+	Vector2 meterStart = localToWorld(this, 0, -meterLength * 0.5);
+	Vector2 meterEnd = localToWorld(this, 0, -meterLength * 0.5 + meterLength * throttle);
+	Vector2 meterBackEnd = localToWorld(this, 0, meterLength * 0.5);
+	drawLine(meterStart, meterBackEnd, meterBackColor, meterWidth);
+	drawLine(meterStart, meterEnd, meterColor, meterWidth);
+
+	// Flaps
+	for (Flap &flap : flaps)
+	{
+		flap.Render(this);
+	}
+}
+
+void Engine::SetThrottle(float x)
+{
+	throttle = MathUtil::Clamp(x, 0.0f, 1.0f);
+}
+
+float Engine::GetMaxThrust()
+{
+	float result = theTuning.GetFloat("EnginePower") * baseThrust;
+	result += GetBody()->GetLinearVelocity().Length() * 0.001 * result;
+	return result;
+}
+
+void Engine::SetLeftFlap(float x)
+{
+	x = MathUtil::Clamp(x, 0.0f, 1.0f);
+	for (Flap &flap : flaps)
+	{
+		if (flap.side == Flap::LEFT)
+		{
+			flap.activation = x;
+		}
+	}
+}
+
+void Engine::SetRightFlap(float x)
+{
+	x = MathUtil::Clamp(x, 0.0f, 1.0f);
+	for (Flap &flap : flaps)
+	{
+		if (flap.side == Flap::RIGHT)
+		{
+			flap.activation = x;
+		}
+	}
+}
+
+void Engine::AddFlap(Flap flap)
+{
+	flaps.push_back(flap);
 }

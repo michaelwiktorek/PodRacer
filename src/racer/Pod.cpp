@@ -7,16 +7,17 @@
  */
 Pod::Pod(float x, float y)
 {
-	super();
-	SetSize(2.0f, 3.0f);
+	SetSize(1.0, 1.5);
 	SetColor(0.3f, 0.3f, 0.7f);
 	SetPosition(x, y);
 	SetRestitution(0.1f);
 	SetFriction(0.3f);
-	InitPhysics();
+}
 
-	leftFlap = 0;
-	rightFlap = 0;
+void Pod::Init()
+{
+	InitPhysics();
+	GetBody()->SetAngularDamping(2.5);
 }
 
 /**
@@ -26,12 +27,10 @@ void Pod::Update(float dt)
 {
 	applyAerodynamics(this, theTuning.GetFloat("PodDrag"));
 
-	b2Vec2 leftStart = b2Vec2(-0.5, 0);
-	b2Vec2 leftEnd = leftStart + b2Vec2(-1, 0);
-	applyAerodynamicsToEdge(this, leftStart, leftEnd, theTuning.GetFloat("FlapDrag") * leftFlap, 0.0);
-	b2Vec2 rightStart = b2Vec2(0.5, 0);
-	b2Vec2 rightEnd = rightStart + b2Vec2(1, 0);
-	applyAerodynamicsToEdge(this, rightEnd, rightStart, theTuning.GetFloat("FlapDrag") * rightFlap, 0.0);
+	for (Flap &flap : flaps)
+	{
+		flap.Update(this);
+	}
 }
 
 /**
@@ -39,22 +38,41 @@ void Pod::Update(float dt)
  */
 void Pod::Render()
 {
+	// Body
 	super::Render();
 
-	Vector2 leftStart = Vector2(-1.0, 0);
-	Vector2 leftEnd = leftStart + Vector2(-sin(leftFlap), cos(leftFlap)) * 0.8;
-	drawLine(localToWorld(this, leftStart), localToWorld(this, leftEnd), Color(0, 0, 0), 1);
-	Vector2 rightStart = Vector2(1.0, 0);
-	Vector2 rightEnd = rightStart + Vector2(sin(rightFlap), cos(rightFlap)) * 0.8;
-	drawLine(localToWorld(this, rightStart), localToWorld(this, rightEnd), Color(0, 0, 0), 1);
+	// Flaps
+	for (Flap &flap : flaps)
+	{
+		flap.Render(this);
+	}
 }
 
 void Pod::SetLeftFlap(float x)
 {
-	leftFlap = MathUtil::Clamp(x, 0.0f, 1.0f);
+	x = MathUtil::Clamp(x, 0.0f, 1.0f);
+	for (Flap &flap : flaps)
+	{
+		if (flap.side == Flap::LEFT)
+		{
+			flap.activation = x;
+		}
+	}
 }
 
 void Pod::SetRightFlap(float x)
 {
-	rightFlap = MathUtil::Clamp(x, 0.0f, 1.0f);
+	x = MathUtil::Clamp(x, 0.0f, 1.0f);
+	for (Flap &flap : flaps)
+	{
+		if (flap.side == Flap::RIGHT)
+		{
+			flap.activation = x;
+		}
+	}
+}
+
+void Pod::AddFlap(Flap flap)
+{
+	flaps.push_back(flap);
 }
